@@ -1,3 +1,2 @@
-[web]
-web01 ansible_host=18.207.115.208 ansible_user=ubuntu
+localhost ansible_connection=local
 
