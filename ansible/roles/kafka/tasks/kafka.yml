@@ -1,0 +1,75 @@
+- name: Create Kafka group
+  group:
+    name: "{{ kafka_group }}"
+    state: present
+
+- name: Create Kafka user
+  user:
+    name: "{{ kafka_user }}"
+    group: "{{ kafka_group }}"
+    create_home: no
+    shell: /sbin/nologin
+    state: present
+
+- name: Create Kafka log directory
+  file:
+    path: "{{ kafka_log_dirs }}"
+    state: directory
+    owner: "{{ kafka_user }}"
+    group: "{{ kafka_group }}"
+    mode: '0755'
+
+- name: Create Kafka installation directory
+  file:
+    path: "{{ kafka_install_dir }}"
+    state: directory
+    owner: "{{ kafka_user }}"
+    group: "{{ kafka_group }}"
+    mode: '0755'
+
+- name: Download Kafka
+  get_url:
+    url: "{{ kafka_download_url }}"
+    dest: "/tmp/kafka_{{ kafka_version }}.tgz"
+  become: yes  
+
+- name: Extract Kafka
+  unarchive:
+    src: "/tmp/kafka_{{ kafka_version }}.tgz"
+    dest: "{{ kafka_install_dir }}"
+    remote_src: yes
+    owner: "{{ kafka_user }}"
+    group: "{{ kafka_group }}"
+    creates: "{{ kafka_install_dir }}/kafka_2.13-{{ kafka_version }}"
+  
+- name: Link Kafka to 'current'
+  file:
+    src: "{{ kafka_install_dir }}/kafka_2.13-{{ kafka_version }}"
+    dest: "{{ kafka_install_dir }}/current"
+    state: link
+    owner: "{{ kafka_user }}"
+    group: "{{ kafka_group }}"
+
+- name: Configure Kafka
+  template:
+    src: "server.properties.j2"
+    dest: "{{ kafka_install_dir }}/current/config/server.properties"
+    owner: "{{ kafka_user }}"
+    group: "{{ kafka_group }}"
+  notify: Restart Kafka
+
+- name: Copy Kafka systemd service file
+  template:
+    src: kafka.service.j2
+    dest: /etc/systemd/system/kafka.service
+  notify: Restart Kafka
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Enable and start Kafka service
+  systemd:
+    name: kafka
+    enabled: yes
+    state: started

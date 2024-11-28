@@ -1,0 +1,18 @@
+---
+# handlers file for kafka
+
+# restart zookeeper
+- name: Restart Zookeeper
+  service:
+    name: zookeeper
+    state: restarted
+    enabled: yes
+  when: ansible_os_family == "Debian"
+
+
+# restart kafka
+- name: Restart Kafka
+  service:
+    name: "{{ 'kafka' if ansible_os_family == 'Debian' else 'kafka.service' }}"
+    state: restarted
+    enabled: true

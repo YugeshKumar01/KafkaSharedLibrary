@@ -1,0 +1,12 @@
+---
+# tasks file for kafka
+
+
+
+- name: Service management task
+  ansible.builtin.include_tasks: dependency.yml
+
+
+- name: Service management task
+  ansible.builtin.include_tasks: kafka.yml
+

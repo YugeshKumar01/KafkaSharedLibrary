@@ -1,0 +1,7 @@
+---
+  - name: Installing kafka and it's dependencies
+    hosts: all
+    become: true
+    roles:
+      - kafka
+
