@@ -1,0 +1,12 @@
+repository:
+  url: "https://github.com/YugeshKumar01/KafkaSharedLibrary.git"
+  branch: "main"
+  
+
+ansible:
+  inventory: "ansible/roles/inventory.yml"
+  playbook: "ansible/roles/playbook.yml"
+
+
+notification:
+  channel: "#all-notify"    # For Slack notifications
